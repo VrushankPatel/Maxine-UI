@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { Component } from 'react';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
@@ -11,78 +10,12 @@ import Stack from 'react-bootstrap/Stack';
 
 
 class Configuration extends Component {
-    state = {
-        heartBeatTimeout: 1,
-        config: {},
-        logFormat: "",
-        logAsync: true,
-        logJsonPrettify: false,
-        sss: "RR",
-        statusMonitor: false,
-        saveMessage: "Save Changes"
-    };
+    state = {};
 
     componentDidMount = () => {
-        this.gatherConfig();
+        this.props.gatherConfig();
     }
 
-    gatherConfig = () => {
-        axios.get(`${util.url}/api/maxine/control/config`)
-            .then(response => {
-                if (response.status === 200) {
-                    const config = response.data;
-                    this.setState({
-                        heartBeatTimeout: config.heartBeatTimeout,
-                        logFormat: config.logFormat.name,
-                        logAsync: config.logAsync,
-                        config: config,
-                        logJsonPrettify: config.logJsonPrettify,
-                        sss: config.serverSelectionStrategy.name,
-                        statusMonitor: config.statusMonitorEnabled
-                    });
-                }
-            });
-    }
-
-    decreaseBeat = () => {
-        if (this.state.heartBeatTimeout > 1) {
-            this.setState({
-                heartBeatTimeout: this.state.heartBeatTimeout - 1
-            });
-        }
-    }
-
-    increaseBeat = () => {
-        if (this.state.heartBeatTimeout < 20) {
-            this.setState({
-                heartBeatTimeout: this.state.heartBeatTimeout + 1
-            });
-        }
-    }
-
-    saveConfig = () => {
-        const data = {
-            "logAsync" : this.state.logAsync,
-            "heartBeatTimeout" : this.state.heartBeatTimeout,
-            "logJsonPrettify" : this.state.logJsonPrettify,
-            "serverSelectionStrategy" : this.state.sss,
-            "logFormat" : this.state.logFormat
-        }
-        axios.put(`${util.url}/api/maxine/control/config`, data)
-            .then(response => {
-                if (response.status === 200){
-                    this.setState({saveMessage: "Saved successfully"});
-                    setTimeout(() => {
-                        this.setState({saveMessage: "Save Changes"});
-                    }, 3000)
-                }
-            }).catch(ex => {
-                this.setState({saveMessage: "Couldn't Save, try again later"});
-                setTimeout(() => {
-                    this.setState({saveMessage: "Save Changes"});
-                }, 3000)
-            });
-    }
     centerStyle = { display: 'flex', justifyContent: 'center' };
     render() {
         return (
@@ -94,51 +27,19 @@ class Configuration extends Component {
                 </center>
                 <Container className="pt-4 pb-4">
                     <Row>
-                        <Col style={this.centerStyle}>
-                            <Form.Check
-                                type="switch"
-                                className="pt-1"
-                                checked={this.state.logAsync}
-                                onChange={() => this.setState({ logAsync: !this.state.logAsync })}
-                                id="custom-switch"
-                                label="Async Logging" />
-                        </Col>
                         <Col>
                             <center>
-                                {'Heartbeat timeOut '}
-                                <Button variant="primary" onClick={this.decreaseBeat} size="sm">-</Button>
-                                {` ${this.state.heartBeatTimeout} `}
-                                <Button variant="primary" onClick={this.increaseBeat} size="sm">+</Button>
+                                {'Default HeartBeat '}
+                                <Button variant="primary" onClick={this.props.decreaseBeat} size="sm">-</Button>
+                                {` ${this.props.heartBeatTimeout} `}
+                                <Button variant="primary" onClick={this.props.increaseBeat} size="sm">+</Button>
                             </center>
-                        </Col>
-                        <Col>
-                            <Form.Check
-                                type="switch"
-                                className="pt-1"
-                                checked={this.state.logFormat === "JSON"}
-                                onChange={() => this.setState({
-                                    logFormat: this.state.logFormat === "JSON" ? "PLAIN" : "JSON"
-                                })}
-                                id="custom-switch"
-                                label="JSONified Logging" />
-                        </Col>
-                    </Row>
-                    <Row className="pt-4">
-                        <Col style={this.centerStyle}>
-                            <Form.Check
-                                type="switch"
-                                className="pt-1"
-                                checked={this.state.statusMonitor}
-                                onChange={() => this.setState({ statusMonitor: !this.state.statusMonitor })}
-                                id="custom-switch"
-                                label="Status Monitor"
-                                disabled />
                         </Col>
                         <Col>
                             <center>
                                 <Dropdown>
                                     <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
-                                        {util.SSS[this.state.sss]}
+                                        {util.SSS[this.props.sss]}
                                     </Dropdown.Toggle>
 
                                     <Dropdown.Menu>
@@ -146,7 +47,7 @@ class Configuration extends Component {
                                         {
                                             Object.keys(util.SSS).map(element =>
                                                 <Dropdown.Item
-                                                    onClick={() => this.setState({ sss: element })}>
+                                                    onClick={() => this.props.changeSSS(element)}>
                                                     {util.SSS[element]}
                                                 </Dropdown.Item>)
                                         }
@@ -154,21 +55,19 @@ class Configuration extends Component {
                                 </Dropdown>
                             </center>
                         </Col>
-                        <Col>
+                        <Col style={this.centerStyle}>
                             <Form.Check
                                 type="switch"
                                 className="pt-1"
-                                checked={this.state.logJsonPrettify}
-                                onChange={() => this.setState({ logJsonPrettify: !this.state.logJsonPrettify })}
+                                checked={this.props.statusMonitor}
                                 id="custom-switch"
-                                label="Prettify Logs"
-                                disabled={this.state.logFormat === "JSON" ? false : true} />
+                                label="Status Monitor"
+                                disabled />
                         </Col>
                     </Row>
                 </Container>
                 <Stack gap={2} className="col-md-3 mx-auto pt-4">
-                    <Button size="sm" variant="success" onClick={this.saveConfig}>{this.state.saveMessage}</Button>
-                    <Button size="sm" variant="danger" onClick={this.gatherConfig}>Reset</Button>
+                    <Button size="sm" variant="danger" onClick={this.props.gatherConfig}>Reset</Button>
                 </Stack>
             </div>
         );

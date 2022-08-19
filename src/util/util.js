@@ -1,5 +1,5 @@
 const util = {
-    url: "https://maxine-x.herokuapp.com",
+    url: "http://localhost:8080",
     lightTheme: {
         backgroundColor: "#ECEBEF",
         color: "black"

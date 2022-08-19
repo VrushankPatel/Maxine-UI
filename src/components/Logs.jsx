@@ -15,57 +15,36 @@ class Logs extends Component {
     state = {
         logs: ">",
         logFile: "Maxine-info.log",
-        logFiles: {},
+        logFiles: { "Recents": "Recents" },
         autoReloadLogs: true,
-        darkMode: true
+        darkMode: true,
+        currentSelectedLog: "Recents"
     };
 
     gatherLogs = () => {
         if (this.state.autoReloadLogs) {
-            if (Object.keys(this.state.logFiles).length === 1){
-                this.setState({logFile: "Maxine-info.log"});
-            }
-            axios.get(`${util.url}/logs/${this.state.logFile}`)
+            axios.get(`${util.url}/api/logs/recent`)
                 .then(response => {
                     if (response.status === 200) {
                         this.setState({
-                            logs: response.data
+                            logs: response.data.logs
                         });
                     }
-                }).catch(_ => {
-                    this.gatherLogFileNames();
                 });
         }
     }
 
     gatherLogFileNames = () => {
-        if (this.state.autoReloadLogs) {
-            axios.get(util.url + "/api/logs/download")
-                .then(response => {
-                    this.setState({
-                        logFiles: response.data
-                    }, this.getLatestFile);
-                });
-        }
-    }
-
-    getLatestFile = () => {
-        if (Object.keys(this.state.logFiles).length === 1){
-            this.setState({logFile: "Maxine-info.log"});
-            return this.state.logFile;
-        }
-        let maxNum = 0;
-        Object.keys(this.state.logFiles).forEach(logFile => {
-            let number = parseInt(logFile.replace("Maxine-info","").replace(".log",""));
-            if (number){
-                maxNum = number > maxNum ? number : maxNum;
-            }
-        });
-        this.setState({logFile: `Maxine-info${maxNum}.log`})
+        axios.get(util.url + "/api/logs/download")
+            .then(response => {
+                this.setState({
+                    logFiles: { ...{ Recents: "Recents" }, ...response.data }
+                })
+            });
     }
 
     clearLogs = () => {
-        axios.post(util.url + "/api/logs/recent/clear");
+        axios.get(util.url + "/api/logs/recent/clear");
         this.setState({ logs: ">" });
     }
 
@@ -76,19 +55,43 @@ class Logs extends Component {
     componentDidMount = () => {
         this.gatherLogs();
         this.gatherLogFileNames();
-        setInterval(this.gatherLogs, 3000);
-        setInterval(this.gatherLogFileNames, 9000);
+        setInterval(this.gatherLogs, 1000);
+        setInterval(this.gatherLogFileNames, 10000);
     }
     componentDidUpdate() {
         if (this.state.autoReloadLogs) {
             this.logConsole.current.scrollTop = this.logConsole.current.scrollHeight;
         }
     }
+    selectLog = (logElement) => {
+        this.setState({
+            currentSelectedLog: logElement,
+            autoReloadLogs: logElement === "Recents" ? "true" : false
+        }, () => {
+            this.loadLogFile(logElement);
+        });
+    }
+
+    loadLogFile = (fileName) => {
+        if (fileName !== "Recents"){
+            axios.get(`${util.url}/logs/${fileName}`)
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        logs: response.data
+                    });
+                }
+            }).catch(_ => {
+                this.setState({currentSelectedLog: "Recents", autoReloadLogs: true})
+                this.gatherLogFileNames();
+            });
+        }
+    }
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
+            <div style={{ height: "100vh", fontFamily: "Lucida Console" }} className="p-1">
                 <center>
-                <Form.Label className="display-4">Logs Console</Form.Label>
+                    <Form.Label className="display-4">Logs Console</Form.Label>
                 </center>
                 <div className="p-2">
                     <Row xs="auto">
@@ -98,21 +101,28 @@ class Logs extends Component {
                         <Col>
                             <Dropdown>
                                 <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
-                                    Download Logs
+                                    {this.state.currentSelectedLog}
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
                                     {
-                                        Object.keys(this.state.logFiles).map(element => <Dropdown.Item href={util.url + this.state.logFiles[element]} target="_blank">{element}</Dropdown.Item>)
+                                        Object.keys(this.state.logFiles).map(element => <Dropdown.Item onClick={() => this.selectLog(element)}>{element}</Dropdown.Item>)
                                     }
                                 </Dropdown.Menu>
                             </Dropdown>
                         </Col>
+                        {
+                            this.state.currentSelectedLog === "Recents" ? "" : <Col><Button 
+                            variant="outline-primary" 
+                            href={util.url + "/api/logs/download/" + this.state.currentSelectedLog}
+                            target="_blank"
+                            size="sm">Download File</Button></Col>
+                        }
                         <Col>
                             <Form.Check
                                 type="switch"
                                 checked={this.state.autoReloadLogs}
-                                onChange={() => this.setState({ autoReloadLogs: !this.state.autoReloadLogs })}
+                                onChange={() => this.setState({ autoReloadLogs: !this.state.autoReloadLogs, currentSelectedLog: "Recents" })}
                                 id="custom-switch"
                                 label="Auto Reload Logs" />
                         </Col>
@@ -123,9 +133,34 @@ class Logs extends Component {
                                 onChange={this.toggleTheme}
                                 label="Dark Mode" />
                         </Col>
+                        <Col>
+                            <Form.Check
+                                type="switch"
+                                checked={this.props.logAsync}
+                                onChange={this.props.toggleAsync}
+                                id="custom-switch"
+                                label="Async Logging" />
+                        </Col>
+                        <Col>
+                            <Form.Check
+                                type="switch"
+                                checked={this.props.logFormat === "JSON"}
+                                onChange={this.props.toggleLogFormat}
+                                id="custom-switch"
+                                label="JSONified Logging" />
+                        </Col>
+                        <Col>
+                        <Form.Check
+                                type="switch"
+                                checked={this.props.logJsonPrettify}
+                                onChange={this.props.toggleLogJSONPrettify}
+                                id="custom-switch"
+                                label="Prettify Logs"
+                                disabled={this.props.logFormat === "JSON" ? false : true} />
+                        </Col>
                     </Row>
                 </div>
-                <Form.Group className="mb-3 h-100" style={{borderRadius: "10px"}}>
+                <Form.Group className="mb-3 h-100" controlId="exampleForm.ControlTextarea1">
                     <Form.Control
                         ref={this.logConsole}
                         style={this.state.darkMode ? util.darkTheme : util.lightTheme} value={this.state.logs} as="textarea" className="h-100" disabled />
