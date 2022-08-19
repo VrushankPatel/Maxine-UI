@@ -8,6 +8,7 @@ import Configuration from '../components/Configuration';
 import Servers from '../components/Servers';
 import axios from 'axios';
 import util from '../util/util';
+import Status from '../components/Status';
 
 class SignIn extends Component {
     state = {
@@ -18,7 +19,8 @@ class SignIn extends Component {
         logJsonPrettify: false,
         sss: "RR",
         statusMonitor: false,
-        saveTimeout: null
+        saveTimeout: null,
+        currentTab: "info"
     };
 
     waitAndSave = () => {
@@ -106,18 +108,20 @@ class SignIn extends Component {
                 </Navbar>
                 <div>
                     <Tabs
+                    onSelect={(tab) => this.setState({currentTab: tab})}
                         defaultActiveKey="info"
                         id="uncontrolled-tab-example"
                         className="mb-3"
                     >
-                        <Tab eventKey="info" title="Info">
+                        <Tab eventKey="Info" title="Info">
                             vrushank
                         </Tab>
                         <Tab eventKey="Servers" title="Servers">
-                            <Servers />
+                            <Servers currentTab={this.state.currentTab} />
                         </Tab>
                         <Tab eventKey="Logs" title="Logs">
                             <Logs
+                                currentTab={this.state.currentTab} 
                                 logFormat={this.state.logFormat}
                                 toggleLogFormat={this.toggleLogFormat}
                                 logJsonPrettify={this.state.logJsonPrettify}
@@ -127,8 +131,9 @@ class SignIn extends Component {
                             />
                         </Tab>
                         <Tab eventKey="Configuration" title="Configuration">
-                            <Configuration 
-                                config={this.state.config} 
+                            <Configuration
+                                currentTab={this.state.currentTab} 
+                                config={this.state.config}
                                 heartBeatTimeout={this.state.heartBeatTimeout}
                                 logFormat={this.state.logFormat}
                                 logJsonPrettify={this.state.logJsonPrettify}
@@ -137,11 +142,14 @@ class SignIn extends Component {
                                 toggleLogJSONPrettify={this.toggleLogJSONPrettify}
                                 toggleLogFormat={this.toggleLogFormat}
                                 changeSSS={this.changeSSS}
-                                gatherConfig={this.gatherConfig} 
+                                gatherConfig={this.gatherConfig}
                                 increaseBeat={this.increaseBeat}
                                 decreaseBeat={this.decreaseBeat}
                                 saveConfig={this.saveConfig}
                                 />
+                        </Tab>
+                        <Tab eventKey="Status" title="Status">
+                            <Status currentTab={this.state.currentTab} />
                         </Tab>
                     </Tabs>
                 </div>

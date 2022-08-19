@@ -13,17 +13,19 @@ class Servers extends Component {
     }
 
     componentDidMount = () => {
-        setInterval(this.getservers, 5000);
+        setInterval(this.getservers, 2000);
     }
 
     getservers = () => {
-        axios.get(`${util.url}/api/maxine/serviceops/servers`)
+        if (this.props.currentTab === "Servers"){
+            axios.get(`${util.url}/api/maxine/serviceops/servers`)
             .then(response => {
                 if (response.status === 200) {
                     const servers = response.data;
                     this.setState({ servers: servers });
                 }
             });
+        }
     }
 
     render() {
@@ -35,6 +37,15 @@ class Servers extends Component {
                 <div className="p-4">
                     <Row className="p-4">
                         {
+                            Object.keys(this.state.servers).length === 0 ? <Col className="pt-4" md="12">
+                            <Card>
+                                <Card.Body>
+                                    <center>
+                                        <Card.Title>No Services Registered. 😊</Card.Title>
+                                    </center>
+                                </Card.Body>
+                            </Card>
+                        </Col> :
                             Object.keys(this.state.servers).map(server =>
                                 <Col className="pt-4" md="6">
                                     <Card>
@@ -63,7 +74,12 @@ class Servers extends Component {
                                                 Timeout : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut} second(s)
                                             </Card.Text>
                                             <Card.Text>
-                                                Registered At : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt}
+                                                Registered At : {new Date(parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt)).toString()}
+                                            </Card.Text>
+                                            <Card.Text>
+                                                Expires In : {
+                                                    Math.round((parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt) + (this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut * 1000) - Date.now()) / 1000)
+                                                } Second(s)
                                             </Card.Text>
                                         </Card.Body>
                                     </Card>

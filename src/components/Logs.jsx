@@ -22,7 +22,7 @@ class Logs extends Component {
     };
 
     gatherLogs = () => {
-        if (this.state.autoReloadLogs) {
+        if (this.state.autoReloadLogs && this.props.currentTab === "Logs") {
             axios.get(`${util.url}/api/logs/recent`)
                 .then(response => {
                     if (response.status === 200) {
@@ -35,12 +35,14 @@ class Logs extends Component {
     }
 
     gatherLogFileNames = () => {
-        axios.get(util.url + "/api/logs/download")
+        if (this.props.currentTab === "Logs"){
+            axios.get(util.url + "/api/logs/download")
             .then(response => {
                 this.setState({
                     logFiles: { ...{ Recents: "Recents" }, ...response.data }
                 })
             });
+        }
     }
 
     clearLogs = () => {
@@ -96,9 +98,6 @@ class Logs extends Component {
                 <div className="p-2">
                     <Row xs="auto">
                         <Col>
-                            <Button variant="warning" onClick={this.clearLogs} size="sm">Clear Console</Button>
-                        </Col>
-                        <Col>
                             <Dropdown>
                                 <Dropdown.Toggle size="sm" variant="primary" id="dropdown-basic">
                                     {this.state.currentSelectedLog}
@@ -110,6 +109,9 @@ class Logs extends Component {
                                     }
                                 </Dropdown.Menu>
                             </Dropdown>
+                        </Col>
+                        <Col>
+                            <Button variant="warning" onClick={this.clearLogs} size="sm">Clear Console</Button>
                         </Col>
                         {
                             this.state.currentSelectedLog === "Recents" ? "" : <Col><Button 
