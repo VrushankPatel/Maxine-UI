@@ -9,7 +9,7 @@ import util from '../util/util';
 import Stack from 'react-bootstrap/Stack';
 
 
-class Configuration extends Component {
+class Settings extends Component {
     state = {};
 
     componentDidMount = () => {
@@ -23,7 +23,7 @@ class Configuration extends Component {
                 <center>
                     <Form.Label
                         style={{ borderRadius: "10px" }}
-                        className="display-4 p-3">Configuration</Form.Label>
+                        className="display-4 p-3">Settings</Form.Label>
                 </center>
                 <Container className="pt-4 pb-4">
                     <Row>
@@ -74,4 +74,4 @@ class Configuration extends Component {
     }
 }
 
-export default Configuration;
+export default Settings;

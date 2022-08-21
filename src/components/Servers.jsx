@@ -17,14 +17,25 @@ class Servers extends Component {
     }
 
     getservers = () => {
-        if (this.props.currentTab === "Servers"){
-            axios.get(`${util.url}/api/maxine/serviceops/servers`)
-            .then(response => {
-                if (response.status === 200) {
-                    const servers = response.data;
-                    this.setState({ servers: servers });
+        if (this.props.currentTab === "Servers") {
+            const config = {
+                method: 'get',
+                url: `${util.url}/api/maxine/serviceops/servers`,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
-            });
+            };
+            axios(config)
+                .then(response => {
+                    if (response.status === 200) {
+                        const servers = response.data;
+                        this.setState({ servers: servers });
+                    }
+                }).catch(ex => {
+                    if (ex.response.status === 401 || ex.response.status === 403) {
+                        this.props.logOut();
+                    }
+                });
         }
     }
 
@@ -38,53 +49,53 @@ class Servers extends Component {
                     <Row className="p-4">
                         {
                             Object.keys(this.state.servers).length === 0 ? <Col className="pt-4" md="12">
-                            <Card>
-                                <Card.Body>
-                                    <center>
-                                        <Card.Title>No Services Registered. 😊</Card.Title>
-                                    </center>
-                                </Card.Body>
-                            </Card>
-                        </Col> :
-                            Object.keys(this.state.servers).map(server =>
-                                <Col className="pt-4" md="6">
-                                    <Card>
-                                        <Card.Body>
-                                            <Card.Title>Service Id: {server}</Card.Title>
-                                            <Dropdown className="pt-2 pb-2">
-                                                <Card.Subtitle className="mb-2 text-muted">
-                                                    <Dropdown.Toggle size="sm" variant="outline-primary" id="dropdown-basic">
-                                                        Nodes [{Object.keys(this.state.servers[server].nodes).length}]
-                                                    </Dropdown.Toggle>
-                                                </Card.Subtitle>
+                                <Card>
+                                    <Card.Body>
+                                        <center>
+                                            <Card.Title>No Services Registered. 😊</Card.Title>
+                                        </center>
+                                    </Card.Body>
+                                </Card>
+                            </Col> :
+                                Object.keys(this.state.servers).map(server =>
+                                    <Col className="pt-4" md="6">
+                                        <Card>
+                                            <Card.Body>
+                                                <Card.Title>Service Id: {server}</Card.Title>
+                                                <Dropdown className="pt-2 pb-2">
+                                                    <Card.Subtitle className="mb-2 text-muted">
+                                                        <Dropdown.Toggle size="sm" variant="outline-primary" id="dropdown-basic">
+                                                            Nodes [{Object.keys(this.state.servers[server].nodes).length}]
+                                                        </Dropdown.Toggle>
+                                                    </Card.Subtitle>
 
-                                                <Dropdown.Menu>
-                                                    {
-                                                        Object.keys(this.state.servers[server].nodes).map(node => <Dropdown.Item>{node}</Dropdown.Item>)
-                                                    }
-                                                </Dropdown.Menu>
-                                            </Dropdown>
-                                            <Card.Text>
-                                                Root node : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].parentNode}
-                                            </Card.Text>
-                                            <Card.Text>
-                                                address : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].address}
-                                            </Card.Text>
-                                            <Card.Text>
-                                                Timeout : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut} second(s)
-                                            </Card.Text>
-                                            <Card.Text>
-                                                Registered At : {new Date(parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt)).toString()}
-                                            </Card.Text>
-                                            <Card.Text>
-                                                Expires In : {
-                                                    Math.round((parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt) + (this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut * 1000) - Date.now()) / 1000)
-                                                } Second(s)
-                                            </Card.Text>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            )
+                                                    <Dropdown.Menu>
+                                                        {
+                                                            Object.keys(this.state.servers[server].nodes).map(node => <Dropdown.Item>{node}</Dropdown.Item>)
+                                                        }
+                                                    </Dropdown.Menu>
+                                                </Dropdown>
+                                                <Card.Text>
+                                                    Root node : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].parentNode}
+                                                </Card.Text>
+                                                <Card.Text>
+                                                    address : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].address}
+                                                </Card.Text>
+                                                <Card.Text>
+                                                    Timeout : {this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut} second(s)
+                                                </Card.Text>
+                                                <Card.Text>
+                                                    Registered At : {new Date(parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt)).toString()}
+                                                </Card.Text>
+                                                <Card.Text>
+                                                    Expires In : {
+                                                        Math.round((parseInt(this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].registeredAt) + (this.state.servers[server].nodes[Object.keys(this.state.servers[server].nodes)[0]].timeOut * 1000) - Date.now()) / 1000)
+                                                    } Second(s)
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                )
                         }
 
                     </Row>

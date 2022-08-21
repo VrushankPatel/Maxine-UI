@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 
@@ -9,7 +8,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import util from '../util/util';
 
-class SignIn extends Component {
+class Login extends Component {
     state = {
         userId: "",
         password: "",
@@ -41,7 +40,7 @@ class SignIn extends Component {
                 const token = response.data.accessToken;
                 localStorage.setItem("token", token);
                 this.setState({loading: false});
-                window.location.href = "/";
+                this.props.logIn();
             }
         }).catch(ex => {
             const code = ex.response.status;
@@ -52,6 +51,7 @@ class SignIn extends Component {
                     showAlert: true,
                     loading: false
                 });
+                // this.props.logOut();
                 return;
             }
             this.setState({
@@ -61,21 +61,19 @@ class SignIn extends Component {
             localStorage.clear();
         });
     }
+    componentDidMount(){
+        const token = localStorage.getItem('token');
+        if (!_.isNull(token) && !_.isUndefined(token) && !_.isEmpty(token)){
+            this.props.logIn();
+            return;
+        }
+    }
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center' }} className="pt-4">
-                <div className="pb-5 pt-3 w-50" style={{ border: "1px dashed grey", borderRadius: "20px" }}>
-                    <div style={this.centerStyle} className="pt-4">
-                        <Col style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <img src={require("../assets/imgs/maxine.png")} alt="maxine" height="130" />
-                            <div className="p-3">
-                                <p className="display-1">Maxine</p>
-                                <p className="p">Service registry and discovery</p>
-                            </div>
-                        </Col>
-                    </div>
+            <div style={{ display: 'flex', justifyContent: 'center'}} className="pt-4">
+                <div className="pb-5 pt-3 w-50">
                     <div style={this.centerStyle}>
-                        <p className="display-4">Sign In</p>
+                        <p className="display-3">Login</p>
                     </div>
                     <div style={this.centerStyle}>
                         <div className="w-75">
@@ -93,8 +91,8 @@ class SignIn extends Component {
                                     <Form.Control value={this.state.password} onChange={(event) => this.setState({ password: event.target.value })} type="password" placeholder="Password" />
                                 </Form.Group>
                                 {this.state.showAlert && <Alert variant={this.state.alertVariant}>{this.state.alertMessage}</Alert>}
-                                <div style={this.centerStyle}>
-                                <Button variant="primary" type="submit" disabled={this.state.loading}>
+                                <div style={this.centerStyle} className="pt-4">
+                                <Button variant="primary"  type="submit" disabled={this.state.loading}>
                                     {
                                         (this.state.loading && 
                                         <div>
@@ -107,7 +105,7 @@ class SignIn extends Component {
                                                     aria-hidden="true"
                                                 />{' '}Logging you in...</span>
                                         </div>) ||
-                                        <span> Sign in</span>
+                                        <span> Submit</span>
                                     }
                                 </Button>
                                 </div>
@@ -120,4 +118,4 @@ class SignIn extends Component {
     }
 }
 
-export default SignIn;
+export default Login;

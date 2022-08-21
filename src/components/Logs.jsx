@@ -23,30 +23,63 @@ class Logs extends Component {
 
     gatherLogs = () => {
         if (this.state.autoReloadLogs && this.props.currentTab === "Logs") {
-            axios.get(`${util.url}/api/logs/recent`)
+            const config = {
+                method: 'get',
+                url: `${util.url}/api/logs/recent`,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            };
+            axios(config)
                 .then(response => {
                     if (response.status === 200) {
                         this.setState({
                             logs: response.data.logs
                         });
                     }
+                }).catch(ex => {
+                    if (ex.response.status === 401 || ex.response.status === 403) {
+                        this.props.logOut();
+                    }
                 });
         }
     }
 
     gatherLogFileNames = () => {
-        if (this.props.currentTab === "Logs"){
-            axios.get(util.url + "/api/logs/download")
-            .then(response => {
-                this.setState({
-                    logFiles: { ...{ Recents: "Recents" }, ...response.data }
-                })
-            });
+        const config = {
+            method: 'get',
+            url: `${util.url}/api/logs/download`,
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        };
+        if (this.props.currentTab === "Logs") {
+            axios(config)
+                .then(response => {
+                    this.setState({
+                        logFiles: { ...{ Recents: "Recents" }, ...response.data }
+                    })
+                }).catch(ex => {
+                    if (ex.response.status === 401 || ex.response.status === 403) {
+                        this.props.logOut();
+                    }
+                });
         }
     }
 
     clearLogs = () => {
-        axios.get(util.url + "/api/logs/recent/clear");
+        const config = {
+            method: 'get',
+            url: `${util.url}/api/logs/recent/clear`,
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        };
+        axios(config).catch(ex => {
+            if (ex.response.status === 401 || ex.response.status === 403) {
+                this.props.logOut();
+            }
+        });
         this.setState({ logs: ">" });
     }
 
@@ -58,7 +91,7 @@ class Logs extends Component {
         this.gatherLogs();
         this.gatherLogFileNames();
         setInterval(this.gatherLogs, 1000);
-        setInterval(this.gatherLogFileNames, 10000);
+        setInterval(this.gatherLogFileNames, 5000);
     }
     componentDidUpdate() {
         if (this.state.autoReloadLogs) {
@@ -75,20 +108,41 @@ class Logs extends Component {
     }
 
     loadLogFile = (fileName) => {
-        if (fileName !== "Recents"){
-            axios.get(`${util.url}/logs/${fileName}`)
-            .then(response => {
-                if (response.status === 200) {
-                    this.setState({
-                        logs: response.data
-                    });
+        if (fileName !== "Recents") {
+            const config = {
+                method: 'get',
+                url: `${util.url}/logs/${fileName}`,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
-            }).catch(_ => {
-                this.setState({currentSelectedLog: "Recents", autoReloadLogs: true})
-                this.gatherLogFileNames();
-            });
+            };
+            axios(config)
+                .then(response => {
+                    if (response.status === 200) {
+                        this.setState({
+                            logs: response.data
+                        });
+                    }
+                }).catch(ex => {
+                    if (ex.response.status === 401 || ex.response.status === 403) {
+                        this.props.logOut();
+                    }
+                    this.setState({ currentSelectedLog: "Recents", autoReloadLogs: true })
+                    this.gatherLogFileNames();
+                });
         }
     }
+    downloadFile = () => {
+        const element = document.createElement("a");
+        const file = new Blob([this.state.logs], {
+            type: "text/plain"
+        });
+        element.href = URL.createObjectURL(file);
+        element.download = this.state.currentSelectedLog;
+        document.body.appendChild(element);
+        element.click();
+    }
+
     render() {
         return (
             <div style={{ height: "100vh", fontFamily: "Lucida Console" }} className="p-1">
@@ -114,11 +168,10 @@ class Logs extends Component {
                             <Button variant="warning" onClick={this.clearLogs} size="sm">Clear Console</Button>
                         </Col>
                         {
-                            this.state.currentSelectedLog === "Recents" ? "" : <Col><Button 
-                            variant="outline-primary" 
-                            href={util.url + "/api/logs/download/" + this.state.currentSelectedLog}
-                            target="_blank"
-                            size="sm">Download File</Button></Col>
+                            this.state.currentSelectedLog === "Recents" ? "" : <Col><Button
+                                variant="outline-primary"
+                                onClick={this.downloadFile}
+                                size="sm">Download File</Button></Col>
                         }
                         <Col>
                             <Form.Check
@@ -152,7 +205,7 @@ class Logs extends Component {
                                 label="JSONified Logging" />
                         </Col>
                         <Col>
-                        <Form.Check
+                            <Form.Check
                                 type="switch"
                                 checked={this.props.logJsonPrettify}
                                 onChange={this.props.toggleLogJSONPrettify}

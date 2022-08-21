@@ -9,9 +9,9 @@ const util = {
         color: "white"
     },
     SSS: {
-        "RR" : "Round Robin",
-        "CH" : "Consistent Hashing",
-        "RH" : "Rendezvous Hashing"
+        "RR": "Round Robin",
+        "CH": "Consistent Hashing",
+        "RH": "Rendezvous Hashing"
     }
 }
 export default util;
