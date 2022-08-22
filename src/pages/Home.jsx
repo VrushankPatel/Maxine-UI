@@ -13,7 +13,7 @@ import Login from '../components/Login';
 import Info from '../components/Info';
 import _ from 'lodash';
 
-class SignIn extends Component {
+class Home extends Component {
     state = {
         heartBeatTimeout: 1,
         config: {},
@@ -226,4 +226,4 @@ class SignIn extends Component {
     }
 }
 
-export default SignIn;
+export default Home;
