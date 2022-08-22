@@ -1,5 +1,5 @@
 const util = {
-    url: "http://localhost:8080",
+    url: process.env.REACT_APP_API_URL || "",
     lightTheme: {
         backgroundColor: "#ECEBEF",
         color: "black"
@@ -14,4 +14,5 @@ const util = {
         "RH": "Rendezvous Hashing"
     }
 }
+
 export default util;
