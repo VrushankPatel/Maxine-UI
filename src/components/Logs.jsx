@@ -145,7 +145,7 @@ class Logs extends Component {
 
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Lucida Console" }} className="p-1">
+            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
                 <center>
                     <Form.Label className="display-4">Logs Console</Form.Label>
                 </center>
