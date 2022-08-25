@@ -75,7 +75,7 @@ class Login extends Component {
     }
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center' }} className="pt-4">
+            <div style={{ display: 'flex', justifyContent: 'center', height: "100vh" }} className="pt-4">
                 <div className="pb-5 pt-3 w-50">
                     <div style={this.centerStyle}>
                         <p className="display-3">Login</p>
