@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 
@@ -9,6 +9,11 @@ import _ from 'lodash';
 import util from '../util/util';
 
 class Login extends Component {
+    constructor(props) {
+        super(props);
+        this.userName = React.createRef();
+        this.password = React.createRef();
+    }
     state = {
         userId: "",
         password: "",
@@ -20,8 +25,8 @@ class Login extends Component {
     centerStyle = { display: 'flex', justifyContent: 'center' };
     signin = (event) => {
         event.preventDefault();
-        const userId = this.state.userId;
-        const password = this.state.password;
+        const userId = this.userName.current.value;
+        const password = this.password.current.value;
         if (_.isEmpty(userId) || _.isEmpty(password)) {
             this.setState({
                 alertMessage: "Please enter valid Id and Password",
@@ -39,7 +44,7 @@ class Login extends Component {
             if (code === 200) {
                 const token = response.data.accessToken;
                 localStorage.setItem("token", token);
-                this.setState({loading: false});
+                this.setState({ loading: false });
                 this.props.logIn();
             }
         }).catch(ex => {
@@ -61,16 +66,16 @@ class Login extends Component {
             localStorage.clear();
         });
     }
-    componentDidMount(){
+    componentDidMount() {
         const token = localStorage.getItem('token');
-        if (!_.isNull(token) && !_.isUndefined(token) && !_.isEmpty(token)){
+        if (!_.isNull(token) && !_.isUndefined(token) && !_.isEmpty(token)) {
             this.props.logIn();
             return;
         }
     }
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center'}} className="pt-4">
+            <div style={{ display: 'flex', justifyContent: 'center' }} className="pt-4">
                 <div className="pb-5 pt-3 w-50">
                     <div style={this.centerStyle}>
                         <p className="display-3">Login</p>
@@ -80,7 +85,9 @@ class Login extends Component {
                             <Form onSubmit={this.signin}>
                                 <Form.Group className="mb-3" controlId="formBasicId">
                                     <Form.Label>UserId</Form.Label>
-                                    <Form.Control value={this.state.userId} onChange={(event) => this.setState({ userId: event.target.value })} type="text" placeholder="Enter UserId" />
+                                    <Form.Control 
+                                        ref={this.userName}
+                                        type="text" placeholder="Enter UserId" />
                                     <Form.Text className="text-muted">
                                         We'll never share your UserId with anyone else.
                                     </Form.Text>
@@ -88,26 +95,26 @@ class Login extends Component {
 
                                 <Form.Group className="mb-3" controlId="formBasicPassword">
                                     <Form.Label>Password</Form.Label>
-                                    <Form.Control value={this.state.password} onChange={(event) => this.setState({ password: event.target.value })} type="password" placeholder="Password" />
+                                    <Form.Control ref={this.password} type="password" placeholder="Password" />
                                 </Form.Group>
                                 {this.state.showAlert && <Alert variant={this.state.alertVariant}>{this.state.alertMessage}</Alert>}
                                 <div style={this.centerStyle} className="pt-4">
-                                <Button variant="primary"  type="submit" disabled={this.state.loading}>
-                                    {
-                                        (this.state.loading && 
-                                        <div>
-                                            <span>
-                                                <Spinner
-                                                    as="span"
-                                                    animation="border"
-                                                    size="sm"
-                                                    role="status"
-                                                    aria-hidden="true"
-                                                />{' '}Logging you in...</span>
-                                        </div>) ||
-                                        <span> Submit</span>
-                                    }
-                                </Button>
+                                    <Button variant="primary" type="submit" disabled={this.state.loading}>
+                                        {
+                                            (this.state.loading &&
+                                                <div>
+                                                    <span>
+                                                        <Spinner
+                                                            as="span"
+                                                            animation="border"
+                                                            size="sm"
+                                                            role="status"
+                                                            aria-hidden="true"
+                                                        />{' '}Logging you in...</span>
+                                                </div>) ||
+                                            <span> Submit</span>
+                                        }
+                                    </Button>
                                 </div>
                             </Form>
                         </div>

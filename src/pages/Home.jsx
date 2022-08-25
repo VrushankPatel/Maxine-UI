@@ -32,7 +32,7 @@ class Home extends Component {
         if (this.state.saveTimeout !== null) {
             clearTimeout(this.state.saveTimeout);
         }
-        this.setState({ saveTimeout: setTimeout(this.saveConfig, 2000) });
+        this.setState({ saveTimeout: setTimeout(this.saveConfig, 1000) });
     }
 
     decreaseBeat = () => {
