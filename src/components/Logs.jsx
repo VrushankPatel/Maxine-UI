@@ -206,6 +206,7 @@ class Logs extends Component {
                 <Form.Group className="mb-3 h-100">
                     <Form.Control
                         ref={this.logConsole}
+                        style={{fontFamily: "Lucida Console"}}
                         value={this.state.logs} as="textarea" className={`h-100 ${this.props.theme}`} disabled />
                 </Form.Group>
             </div>
