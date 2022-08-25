@@ -41,15 +41,15 @@ class Servers extends Component {
 
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
-                <center>
+            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className={`p-1 ${this.props.theme}`}>
+                <center className="pt-3">
                     <Form.Label className="display-4">Registered Servers</Form.Label>
                 </center>
                 <div className="p-4">
                     <Row className="p-4">
                         {
                             Object.keys(this.state.servers).length === 0 ? <Col className="pt-4" md="12">
-                                <Card>
+                                <Card className={`${this.props.theme} border border-secondary`}>
                                     <Card.Body>
                                         <center>
                                             <Card.Title>No Services Registered. 😊</Card.Title>
@@ -59,7 +59,7 @@ class Servers extends Component {
                             </Col> :
                                 Object.keys(this.state.servers).map(server =>
                                     <Col className="pt-4" md="6">
-                                        <Card>
+                                        <Card className={`${this.props.theme} border border-secondary`}>
                                             <Card.Body>
                                                 <Card.Title>Service Id: {server}</Card.Title>
                                                 <Dropdown className="pt-2 pb-2">

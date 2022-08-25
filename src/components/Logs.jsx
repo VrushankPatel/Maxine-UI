@@ -17,7 +17,6 @@ class Logs extends Component {
         logFile: "Maxine-info.log",
         logFiles: { "Recents": "Recents" },
         autoReloadLogs: true,
-        darkMode: true,
         currentSelectedLog: "Recents"
     };
 
@@ -83,10 +82,6 @@ class Logs extends Component {
         this.setState({ logs: ">" });
     }
 
-    toggleTheme = () => {
-        this.setState({ darkMode: !this.state.darkMode });
-    }
-
     componentDidMount = () => {
         this.gatherLogs();
         this.gatherLogFileNames();
@@ -145,9 +140,9 @@ class Logs extends Component {
 
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
+            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className={`p-1 ${this.props.theme}`}>
                 <center>
-                    <Form.Label className="display-4">Logs Console</Form.Label>
+                    <Form.Label className="display-4 pt-2">Logs Console</Form.Label>
                 </center>
                 <div className="p-2">
                     <Row xs="auto">
@@ -184,13 +179,6 @@ class Logs extends Component {
                         <Col>
                             <Form.Check
                                 type="switch"
-                                checked={this.state.darkMode}
-                                onChange={this.toggleTheme}
-                                label="Dark Mode" />
-                        </Col>
-                        <Col>
-                            <Form.Check
-                                type="switch"
                                 checked={this.props.logAsync}
                                 onChange={this.props.toggleAsync}
                                 id="custom-switch"
@@ -215,10 +203,10 @@ class Logs extends Component {
                         </Col>
                     </Row>
                 </div>
-                <Form.Group className="mb-3 h-100" controlId="exampleForm.ControlTextarea1">
+                <Form.Group className="mb-3 h-100">
                     <Form.Control
                         ref={this.logConsole}
-                        style={this.state.darkMode ? util.darkTheme : util.lightTheme} value={this.state.logs} as="textarea" className="h-100" disabled />
+                        value={this.state.logs} as="textarea" className={`h-100 ${this.props.theme}`} disabled />
                 </Form.Group>
             </div>
         );

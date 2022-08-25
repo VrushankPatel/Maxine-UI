@@ -5,7 +5,7 @@ class Status extends Component {
 
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
+            <div style={{ height: "150vh", fontFamily: "Jetbrains Mono" }} className="p-1 bg-light">
                 <center>
                     {
                         this.props.currentTab === "Status" ? <iframe

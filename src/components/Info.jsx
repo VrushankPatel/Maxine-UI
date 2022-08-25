@@ -9,13 +9,13 @@ class Info extends Component {
 
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
+            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className={`p-1 ${this.props.theme}`}>
                 <center>
                     <Form.Label className="display-4">Info</Form.Label>
                 </center>
                 <center>
                 <div className="p-4">
-                <Table style={{width: "75%"}} striped bordered hover>
+                <Table style={{width: "75%"}} className={`${this.props.theme} border border-secondary`} bordered hover>
                     <thead>
                         <tr>
                             <th style={{width: "30%"}}>Configuration</th>

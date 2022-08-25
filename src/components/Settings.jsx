@@ -19,7 +19,7 @@ class Settings extends Component {
     centerStyle = { display: 'flex', justifyContent: 'center' };
     render() {
         return (
-            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className="p-1">
+            <div style={{ height: "100vh", fontFamily: "Jetbrains Mono" }} className={`p-1 ${this.props.theme}`}>
                 <center>
                     <Form.Label
                         style={{ borderRadius: "10px" }}

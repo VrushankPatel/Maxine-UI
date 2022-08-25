@@ -12,6 +12,7 @@ import Status from '../components/Status';
 import Login from '../components/Login';
 import Info from '../components/Info';
 import _ from 'lodash';
+import { Button } from 'react-bootstrap';
 
 class Home extends Component {
     state = {
@@ -25,7 +26,11 @@ class Home extends Component {
         saveTimeout: null,
         currentTab: "Info",
         loggedIn: false,
-        port: 0
+        port: 0,
+        darkTheme: "bg-dark text-light",
+        lightTheme: "bg-light text-dark",
+        currentTheme: localStorage.getItem('theme') || "bg-light text-dark",
+        sunOrMoon: "🌙"
     };
 
     waitAndSave = () => {
@@ -130,7 +135,22 @@ class Home extends Component {
         }
     }
 
+    setTheme = () => {
+        const theme = localStorage.getItem('theme');
+        if (_.isUndefined(theme) || _.isNull(theme)){
+            localStorage.setItem('theme', this.state.lightTheme);
+            return;
+        }
+        if (theme === this.state.darkTheme){
+            localStorage.setItem('theme', this.state.darkTheme);
+            this.setState({currentTheme: this.state.darkTheme, sunOrMoon: "🌞"});
+            return
+        }
+        this.setState({currentTheme: this.state.lightTheme, sunOrMoon: "🌙"});
+    }
+
     componentDidMount = () => {
+        this.setTheme();
         setInterval(this.checkToken, 5000);
         const currentTab = localStorage.getItem('currentTab') || "Info";
         this.setState({ currentTab: currentTab });
@@ -142,6 +162,13 @@ class Home extends Component {
         window.location.reload();
     }
 
+    toggleTheme = () => {
+        const newTheme = this.state.currentTheme === this.state.darkTheme ? this.state.lightTheme : this.state.darkTheme;
+        const sunOrMoon = this.state.currentTheme === this.state.darkTheme ? "🌙" : "🌞";
+        this.setState({currentTheme: newTheme, sunOrMoon: sunOrMoon});
+        localStorage.setItem('theme', newTheme);
+    }
+
     logIn = () => this.setState({ loggedIn: true });
 
     centerStyle = { display: 'flex', justifyContent: 'center' };
@@ -149,26 +176,33 @@ class Home extends Component {
     render() {
         return (
             <div>
-                <Navbar bg="light" style={this.centerStyle} expand="lg">
-                    <Navbar.Brand href="/">
+                <Navbar style={this.centerStyle} expand="lg" className={this.state.currentTheme}>
+                    <Navbar.Brand className={this.state.currentTheme}>
                         <div>
                             <Col style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <img src={require("../assets/imgs/maxine.png")} alt="maxine" height="130" />
                                 <div className="p-3">
-                                    <p className="display-3">Maxine</p>
+                                    <p className="display-3">
+                                        Maxine
+                                        <Button
+                                        className={`${this.state.currentTheme} border-0`}
+                                        onClick={this.toggleTheme}>
+                                        {this.state.sunOrMoon}
+                                        </Button>
+                                    </p>
                                     <p className="p">Service registry and discovery</p>
                                 </div>
                             </Col>
                         </div>
                     </Navbar.Brand>
                 </Navbar>
-                <div>
+                <div className={this.state.currentTheme}>
                     {!this.state.loggedIn ? <Login checkToken={this.checkToken} logIn={this.logIn} logOut={this.logOut} /> :
                         <Tabs
+                            className={this.state.currentTheme}
                             onSelect={(tab) => this.selectTab(tab)}
                             defaultActiveKey={this.state.currentTab}
                             id="uncontrolled-tab-example"
-                            className="mb-3"
                         >
                             <Tab eventKey="Info" title="Info">
                                 <Info
@@ -178,10 +212,15 @@ class Home extends Component {
                                     logJsonPrettify={this.state.logJsonPrettify}
                                     logAsync={this.state.logAsync}
                                     sss={this.state.sss}
+                                    theme={this.state.currentTheme}
                                 />
                             </Tab>
                             <Tab eventKey="Servers" title="Servers">
-                                <Servers currentTab={this.state.currentTab} logOut={this.logOut} />
+                                <Servers 
+                                    currentTab={this.state.currentTab} 
+                                    logOut={this.logOut} 
+                                    theme={this.state.currentTheme}
+                                    />
                             </Tab>
                             <Tab eventKey="Logs" title="Logs">
                                 <Logs
@@ -194,6 +233,7 @@ class Home extends Component {
                                     toggleAsync={this.toggleAsync}
                                     logOut={this.logOut}
                                     loggedIn={this.state.loggedIn}
+                                    theme={this.state.currentTheme}
                                 />
                             </Tab>
                             <Tab eventKey="Settings" title="Settings">
@@ -213,10 +253,11 @@ class Home extends Component {
                                     decreaseBeat={this.decreaseBeat}
                                     saveConfig={this.saveConfig}
                                     logOut={this.logOut}
+                                    theme={this.state.currentTheme}
                                 />
                             </Tab>
                             <Tab eventKey="Status" title="Status">
-                                <Status currentTab={this.state.currentTab} />
+                                <Status currentTab={this.state.currentTab} theme={this.state.currentTheme} />
                             </Tab>
                         </Tabs>
                     }
