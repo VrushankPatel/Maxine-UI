@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-
-import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
+import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import _ from 'lodash';
 import util from '../util/util';
