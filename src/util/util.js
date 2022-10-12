@@ -1,5 +1,5 @@
 const util = {
-    url: process.env.REACT_APP_API_URL || "",
+    url: process.env.REACT_APP_API_URL || "https://maxine-one.vercel.app",
     lightTheme: {
         backgroundColor: "#ECEBEF",
         color: "black"
